@@ -1,0 +1,110 @@
+spring:
+  application:
+    name: Backend
+
+  datasource:
+    url: jdbc:postgresql://localhost:5434/server_db
+    username: postgres
+    password: nelson1234
+
+  flyway:
+    enabled: false
+    url: jdbc:postgresql://localhost:5434/server_db
+    user: postgres
+    password: nelson1234
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+
+  devtools:
+    restart:
+      enabled: true
+
+#  security:
+#    oauth2:
+#      client:
+#        registration:
+#          google:
+#            client-id: 310871215879-033lu5ool18j6qeq708sq7mt1q5d2hf6.apps.googleusercontent.com
+#            client-secret: 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
+#            scope: openid, profile, email
+#
+#          github:
+#            client-id: 02118f3f38a4aa376f13
+#            client-secret: 614f7ca392a974debbe610717bc007b5bd43e6a0
+#            scope: openid, profile, email
+
+  mail:
+    host: smtp.gmail.com
+    port: 465
+    username: nelsoncode573@gmail.com
+    password: aiai kzto vrhn ntuf
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          ssl:
+            enable: true
+          connection timeout: 60000
+          timeout: 60000
+          write timeout: 60000
+        debug: true
+
+  task:
+    execution:
+      thread-name-prefix: async-email-
+      pool:
+        core-size: 2
+        max-size: 4
+
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+        security.oauth2: DEBUG
+        web: DEBUG
+        filter: DEBUG
+
+
+application:
+  backend:
+    jwt:
+      secret-key: CE5B45053D01A06FCBB9BE55974A1453CDBAF611E571CDC58ECB4A0BDB794682
+      expiration: 86400000
+
+frontend:
+  url: http://192.168.43.251:5173/
+
+server:
+  error:
+    include-message: always
+  port: 8080
+
+
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        include: "*"
+#  endpoint:
+#    health:
+#      show-details: "always"
+#
+#info:
+#  app:
+#    version: 1.00
+#    name: Customer Admin Dashboard
