@@ -9,7 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails
 
 @Entity
 @Table(name = "app_user")
-data class AppUser(
+class AppUser(
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -19,7 +19,7 @@ spring:
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -87,7 +87,7 @@ application:
       expiration: 86400000
 
 frontend:
-  url: http://192.168.43.251:5173/
+  url: http://127.0.0.1:5500
 
 server:
   error:

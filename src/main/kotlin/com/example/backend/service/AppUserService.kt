@@ -8,7 +8,8 @@ import org.springframework.stereotype.Service
 
 
 @Service
-class AppUserService(private val appUserRepository: AppUserRepository,
+class AppUserService(
+    private val appUserRepository: AppUserRepository,
     private val tokenRepository: TokenRepository
 ) {
 
@@ -51,5 +52,6 @@ class AppUserService(private val appUserRepository: AppUserRepository,
     fun findUserById(id: Long): AppUser? {
         return appUserRepository.findById(id).orElse(null)
     }
+
 
 }

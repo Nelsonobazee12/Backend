@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service
 
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.SignatureAlgorithm
+import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UsernameNotFoundException
@@ -60,11 +60,11 @@ class JwtService(
         println("Expiration (exp): ${expDate.time / 1000}")
 
         return Jwts.builder()
-            .setClaims(claims)
-            .setSubject(userDetails.username)
-            .setIssuedAt(issuedAt)
-            .setExpiration(expDate)
-            .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+            .claims(claims)
+            .subject(userDetails.username)
+            .issuedAt(issuedAt)
+            .expiration(expDate)
+            .signWith(getSignInKey())
             .compact()
     }
 
@@ -83,14 +83,14 @@ class JwtService(
 
     private fun extractAllClaims(token: String): Claims {
         return Jwts.parser()
-            .setSigningKey(getSignInKey())
+            .verifyWith(getSignInKey())
             .build()
-            .parseClaimsJws(token)
-            .body
+            .parseSignedClaims(token)
+            .payload
     }
 
     private fun getSignInKey(): SecretKey {
-        val keyBytes = Base64.getDecoder().decode(jwtProperties.secretKey)
+        val keyBytes = Decoders.BASE64.decode(jwtProperties.secretKey)
         return Keys.hmacShaKeyFor(keyBytes)
     }
 
