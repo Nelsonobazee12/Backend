@@ -1,4 +1,4 @@
-package com.example.backend.users
+package com.example.backend.Entities.users
 
 
 import org.springframework.security.core.authority.SimpleGrantedAuthority

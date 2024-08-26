@@ -1,5 +1,5 @@
 package com.example.backend.registration
-import com.example.backend.users.Role
+import com.example.backend.Entities.users.Role
 
 data class RegistrationRequest(
     val name: String?,

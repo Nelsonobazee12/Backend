@@ -21,6 +21,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Lazy
 import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.core.context.SecurityContextHolder
 
 @EnableWebSecurity
 @Configuration
@@ -30,8 +31,7 @@ class ApplicationSecurityConfig (
     private val jwtAuthenticationConfig: JwtAuthenticationConfiguration,
     private val authenticationProvider: AuthenticationProvider,
 
-
-//    private val logoutHandler: LogoutHandler,
+    private val logoutHandler: LogoutHandler,
 //    private val oAuth2LoginSuccessHandler: OAuth2LoginSuccessHandler,
 //    private val customOAuth2UserService: CustomOAuth2UserService,
     @Value("\${frontend.url}") private val frontendUrl: String
@@ -89,16 +89,16 @@ class ApplicationSecurityConfig (
 //                    }
 //                    .successHandler(oAuth2LoginSuccessHandler)
 //            }
-//            .logout {
-//                it
-//                    .logoutUrl("/logout")
-//                    .addLogoutHandler(logoutHandler)
-//                    .logoutSuccessUrl("/login?logout")
-//                    .invalidateHttpSession(true)
-//                    .deleteCookies("JSESSIONID")
-//                    .permitAll()
-//                    .logoutSuccessHandler { _, _, _ -> SecurityContextHolder.clearContext() }
-//            }
+            .logout {
+                it
+                    .logoutUrl("/api/v1/logout")
+                    .addLogoutHandler(logoutHandler)
+                    .logoutSuccessUrl("/login?logout")
+                    .invalidateHttpSession(true)
+                    .deleteCookies("JSESSIONID")
+                    .permitAll()
+                    .logoutSuccessHandler { _, _, _ -> SecurityContextHolder.clearContext() }
+            }
 //            .exceptionHandling {
 //                it.accessDeniedHandler(CustomAccessDeniedHandler("/access-denied"))
 //            }

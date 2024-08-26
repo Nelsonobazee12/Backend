@@ -9,8 +9,8 @@ import com.example.backend.repository.AppUserRepository
 import com.example.backend.repository.TokenRepository
 import com.example.backend.token.Token
 import com.example.backend.token.TokenType
-import com.example.backend.users.AppUser
-import com.example.backend.users.Role
+import com.example.backend.Entities.users.AppUser
+import com.example.backend.Entities.users.Role
 import com.example.backend.utilities.UrlUtility
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.beans.factory.annotation.Qualifier

@@ -19,9 +19,11 @@ spring:
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     properties:
       hibernate:
+        connection:
+          autocommit: false
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
@@ -87,7 +89,7 @@ application:
       expiration: 86400000
 
 frontend:
-  url: http://127.0.0.1:5500
+  url: http://172.25.240.1:3000
 
 server:
   error:
@@ -108,3 +110,8 @@ server:
 #  app:
 #    version: 1.00
 #    name: Customer Admin Dashboard
+
+cloudinary:
+  cloud-name: dbjwj3ugv
+  api-key: 322279617279884
+  api-secret: 65zPc3FpjxzGN5xQpT_AtsrwvZQ

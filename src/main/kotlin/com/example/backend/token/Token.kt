@@ -1,5 +1,5 @@
 package com.example.backend.token
-import com.example.backend.users.AppUser
+import com.example.backend.Entities.users.AppUser
 import jakarta.persistence.*
 
 @Entity
