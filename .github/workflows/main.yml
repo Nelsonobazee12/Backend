@@ -59,6 +59,9 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
+      - name: Debug Docker Hub Username
+        run: echo "Docker Hub Username is ${{ secrets.DOCKER_HUB_USERNAME }}"
+
       - name: Build Backend Docker Image
         uses: docker/build-push-action@v4
         with:
@@ -74,4 +77,5 @@ jobs:
           file: Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/backend:latest
+
 
