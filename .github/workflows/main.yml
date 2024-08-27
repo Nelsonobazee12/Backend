@@ -69,8 +69,8 @@ jobs:
           file: Dockerfile
           push: false
           tags: |
-            ${{ secrets.DOCKER_HUB_USERNAME }}/backend:latest
-            ${{ secrets.DOCKER_HUB_USERNAME }}/backend:${{ github.sha }}
+             nelsonobazee12518/backend:latest
+             nelsonobazee12518/backend:${{ github.sha }}
 
       - name: Push Backend Docker Image to Docker Hub
         uses: docker/build-push-action@v4
@@ -79,7 +79,7 @@ jobs:
           file: Dockerfile
           push: true
           tags: |
-            ${{ secrets.DOCKER_HUB_USERNAME }}/backend:latest
-            ${{ secrets.DOCKER_HUB_USERNAME }}/backend:${{ github.sha }}
+            nelsonobazee12518/backend:latest
+            nelsonobazee12518/backend:${{ github.sha }}
 
 
