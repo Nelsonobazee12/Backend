@@ -69,8 +69,8 @@ jobs:
           file: Dockerfile
           push: false
           tags: |
-             nelsonobazee12518/backend:latest
-             nelsonobazee12518/backend:${{ github.sha }}
+            nelsonobazee12518/backend:latest
+            nelsonobazee12518/backend:${{ github.sha }}
 
       - name: Push Backend Docker Image to Docker Hub
         uses: docker/build-push-action@v4
@@ -81,5 +81,21 @@ jobs:
           tags: |
             nelsonobazee12518/backend:latest
             nelsonobazee12518/backend:${{ github.sha }}
+
+      - name: Set up Kubernetes
+        uses: azure/setup-kubectl@v1
+        with:
+          version: '1.27.0'
+
+      - name: Configure Kubernetes context
+        run: |
+          kubectl config set-context my-cluster --cluster=my-cluster --user=my-user --namespace=default
+
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl apply -f k8s/backend-deployment.yaml
+          kubectl apply -f k8s/backend-service.yaml
+          kubectl apply -f k8s/backend-ingress.yaml
+
 
 
