@@ -9,17 +9,16 @@ spring:
 
   flyway:
     enabled: false
-    url: jdbc:postgresql://localhost:5434/server_db
+    url: jdbc:postgresql://postgres:5432/server_db
     user: postgres
     password: nelson1234
     locations: classpath:db/migration
     baseline-on-migrate: true
 
-
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     properties:
       hibernate:
         connection:
@@ -27,24 +26,9 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
-
   devtools:
     restart:
       enabled: true
-
-#  security:
-#    oauth2:
-#      client:
-#        registration:
-#          google:
-#            client-id: 310871215879-033lu5ool18j6qeq708sq7mt1q5d2hf6.apps.googleusercontent.com
-#            client-secret: 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
-#            scope: openid, profile, email
-#
-#          github:
-#            client-id: 02118f3f38a4aa376f13
-#            client-secret: 614f7ca392a974debbe610717bc007b5bd43e6a0
-#            scope: openid, profile, email
 
   mail:
     host: smtp.gmail.com
@@ -71,7 +55,6 @@ spring:
         core-size: 2
         max-size: 4
 
-
 logging:
   level:
     org:
@@ -81,7 +64,6 @@ logging:
         web: DEBUG
         filter: DEBUG
 
-
 application:
   backend:
     jwt:
@@ -89,29 +71,15 @@ application:
       expiration: 86400000
 
 frontend:
-  url: http://172.25.240.1:3000
+  url: https://yourfrontend.loca.lt
 
 server:
   error:
     include-message: always
   port: 8080
 
-
-#management:
-#  endpoints:
-#    web:
-#      exposure:
-#        include: "*"
-#  endpoint:
-#    health:
-#      show-details: "always"
-#
-#info:
-#  app:
-#    version: 1.00
-#    name: Customer Admin Dashboard
-
 cloudinary:
   cloud-name: dbjwj3ugv
   api-key: 322279617279884
   api-secret: 65zPc3FpjxzGN5xQpT_AtsrwvZQ
+
