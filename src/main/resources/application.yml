@@ -3,9 +3,9 @@ spring:
     name: Backend
 
   datasource:
-    url: jdbc:postgresql:dpg-cr87qda3esus73frqiv0-a/bankdash_db
-    username: bankdash_db_user
-    password: yj7ERU34mFzmspqAiJBvnkn6eWFiwamK
+     url: jdbc:postgresql://dpg-cr87qda3esus73frqiv0-a:5432/bankdash_db
+     username: bankdash_db_user
+     password: yj7ERU34mFzmspqAiJBvnkn6eWFiwamK
 
   flyway:
     enabled: false
@@ -18,7 +18,7 @@ spring:
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     properties:
       hibernate:
         connection:
