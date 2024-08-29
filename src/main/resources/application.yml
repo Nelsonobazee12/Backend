@@ -3,9 +3,9 @@ spring:
     name: Backend
 
   datasource:
-    url: jdbc:postgresql://localhost:5434/server_db
-    username: postgres
-    password: nelson1234
+    url: jdbc:postgresql:dpg-cr87qda3esus73frqiv0-a/bankdash_db
+    username: bankdash_db_user
+    password: yj7ERU34mFzmspqAiJBvnkn6eWFiwamK
 
   flyway:
     enabled: false
@@ -71,7 +71,7 @@ application:
       expiration: 86400000
 
 frontend:
-  url: https://yourfrontend.loca.lt
+  url: https://bankdash-ten.vercel.app
 
 server:
   error:
