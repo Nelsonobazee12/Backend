@@ -71,7 +71,7 @@ application:
       expiration: 86400000
 
 frontend:
-  url: https://bankdash-ten.vercel.app
+  url: https://bankdash.onrender.com
 
 server:
   error:
