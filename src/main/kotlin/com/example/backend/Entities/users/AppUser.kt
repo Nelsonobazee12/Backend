@@ -28,14 +28,14 @@ data class AppUser(
 
 
     @JoinColumn(name = "image_id")
-    var profileImage: String? = "http://res.cloudinary.com/dbjwj3ugv/image/upload/v1724239879/salv2gaw1mydiwscxyay.png",
+    var profileImage: String? = "https://res.cloudinary.com/dbjwj3ugv/image/upload/v1725105327/fjmlxipfxhaltwfnlxsc.png",
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     var roles : Role?,
 
     @Column(nullable = false)
-    private var enabled: Boolean,
+    var enabled: Boolean,
 
     @JsonIgnore
     @OneToMany(mappedBy = "appUser", fetch = FetchType.EAGER, cascade = [CascadeType.ALL], orphanRemoval = true)

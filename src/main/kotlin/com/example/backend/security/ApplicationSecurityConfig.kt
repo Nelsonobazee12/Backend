@@ -1,9 +1,8 @@
 package com.example.backend.security
 
 import com.example.backend.configuration.jwtConfiguration.JwtAuthenticationConfiguration
-import com.example.backend.service.CustomUserDetailsService
+import com.example.backend.service.CustomOAuth2UserService
 import jakarta.transaction.Transactional
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest
 import org.springframework.context.annotation.Bean
@@ -19,7 +18,6 @@ import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 import org.slf4j.LoggerFactory
-import org.springframework.context.annotation.Lazy
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.core.context.SecurityContextHolder
 
@@ -28,12 +26,11 @@ import org.springframework.security.core.context.SecurityContextHolder
 @EnableMethodSecurity
 @Transactional
 class ApplicationSecurityConfig (
+    private val oauth2LoginSuccessHandler: OAuth2LoginSuccessHandler,
     private val jwtAuthenticationConfig: JwtAuthenticationConfiguration,
     private val authenticationProvider: AuthenticationProvider,
-
     private val logoutHandler: LogoutHandler,
-//    private val oAuth2LoginSuccessHandler: OAuth2LoginSuccessHandler,
-//    private val customOAuth2UserService: CustomOAuth2UserService,
+    private val customOAuth2UserService: CustomOAuth2UserService,
     @Value("\${frontend.url}") private val frontendUrl: String
 ) {
 
@@ -79,16 +76,16 @@ class ApplicationSecurityConfig (
                     ).permitAll()
                     .anyRequest().authenticated()
             }
-//            .oauth2Login {
-//                it
-//                    .loginPage("$frontendUrl/login")
-//                    .failureUrl("$frontendUrl/login?error")
-//                    .permitAll()
-//                    .userInfoEndpoint { userInfo ->
-//                        userInfo.userService(customOAuth2UserService)
-//                    }
-//                    .successHandler(oAuth2LoginSuccessHandler)
-//            }
+            .oauth2Login {
+                it
+                    .loginPage("$frontendUrl/authentication/login")
+                    .failureUrl("$frontendUrl/error")
+                    .permitAll()
+                    .userInfoEndpoint { userInfo ->
+                        userInfo.userService(customOAuth2UserService)
+                    }
+                    .successHandler(oauth2LoginSuccessHandler)
+            }
             .logout {
                 it
                     .logoutUrl("/api/v1/logout")

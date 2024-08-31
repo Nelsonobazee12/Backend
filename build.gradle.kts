@@ -30,7 +30,7 @@ dependencies {
     implementation ("io.jsonwebtoken:jjwt-jackson:0.12.5")
     implementation ("org.springframework.boot:spring-boot-starter-mail")
     implementation ("org.flywaydb:flyway-core:10.10.0")
-
+    implementation ("org.springframework.boot:spring-boot-starter-oauth2-client")
     implementation ("com.cloudinary:cloudinary-http44:1.29.0")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-web")

@@ -2,10 +2,18 @@ spring:
   application:
     name: Backend
 
+# production database
   datasource:
      url: jdbc:postgresql://dpg-cr87qda3esus73frqiv0-a:5432/bankdash_db
      username: bankdash_db_user
      password: yj7ERU34mFzmspqAiJBvnkn6eWFiwamK
+
+#  # development database
+#  datasource:
+#      url: jdbc:postgresql://localhost:5434/server_db
+#      username: postgres
+#      password: nelson1234
+
 
   flyway:
     enabled: false
@@ -29,6 +37,26 @@ spring:
   devtools:
     restart:
       enabled: true
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 1041959039629-0bjbibcg18db7gqqavfmpn0p9up6oa51.apps.googleusercontent.com
+            client-secret: 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
+            scope: openid, profile, email
+
+
+#  security:
+#    oauth2:
+#      client:
+#        registration:
+#          google:
+#            client-id: 310871215879-033lu5ool18j6qeq708sq7mt1q5d2hf6.apps.googleusercontent.com
+#            client-secret: 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
+#            scope: openid, profile, email
+
 
   mail:
     host: smtp.gmail.com
@@ -72,6 +100,9 @@ application:
 
 frontend:
   url: https://bankdash.onrender.com
+
+#frontend:
+#  url: http://localhost:3000
 
 server:
   error:

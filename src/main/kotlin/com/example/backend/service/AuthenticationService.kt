@@ -87,7 +87,7 @@ class AuthenticationService @Lazy constructor(
         )
     }
 
-    private fun saveUserToken(appUser: AppUser, jwtToken: String) {
+    fun saveUserToken(appUser: AppUser, jwtToken: String) {
         val token = Token(
             appUser = appUser,
             token = jwtToken,
