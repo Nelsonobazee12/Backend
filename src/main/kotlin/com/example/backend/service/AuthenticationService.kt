@@ -11,16 +11,20 @@ import com.example.backend.token.Token
 import com.example.backend.token.TokenType
 import com.example.backend.Entities.users.AppUser
 import com.example.backend.Entities.users.Role
+import com.example.backend.exceptions.AuthenticationException
+import com.example.backend.exceptions.RegistrationException
 import com.example.backend.utilities.UrlUtility
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.annotation.Lazy
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Isolation
 import org.springframework.transaction.annotation.Transactional
 
 
@@ -32,35 +36,51 @@ class AuthenticationService @Lazy constructor(
     private val jwtService: JwtService,
     private val authenticationManager: AuthenticationManager,
     private val tokenRepository: TokenRepository,
+    private val emailService: EmailService,
+    private val notificationService: NotificationService,
     @Qualifier("webApplicationContext") private val publisher: ApplicationEventPublisher,
     private val request: HttpServletRequest
 ) {
 
+
     fun registerNewUser(registration: RegistrationRequest, appUrl: String): AuthenticationResponse {
+        // Check if a user with the same email already exists
+        val existingUser = registration.email?.let { userRepository.findByEmail(it) }
+        if (existingUser != null) {
+            throw UserAlreadyExistException("User already exists with this email")
+        }
+
         val user = AppUser(
             name = registration.name,
             email = registration.email,
             password = passwordEncoder.encode(registration.password),
-            roles = registration.role ?: Role.USER,
+            roles = registration.role,
             enabled = true
         )
 
-        user.email?.let { email ->
-            if (userRepository.findByEmail(email) != null) {
-                throw UserAlreadyExistException("User already exists with this email")
-            }
+        try {
+            // Save the new user
+            val savedUser = userRepository.save(user)
+            val jwtToken = jwtService.generateToken(savedUser)
+
+            saveUserToken(savedUser, jwtToken)
+
+            // Send registration email
+            val subject = "Welcome to Our Service!"
+            val body = "Dear ${user.name},\n\nThank you for registering at our service. Please visit $appUrl to start using your account."
+            emailService.sendEmail(user.email!!, subject, body)
+
+            return AuthenticationResponse(
+                accessToken = jwtToken
+            )
+
+        } catch (e: Exception) {
+            // Handle other exceptions if necessary
+            throw RegistrationException("An error occurred while registering the user")
         }
-
-        val savedUser = userRepository.save(user)
-        val jwtToken = jwtService.generateToken(savedUser)
-
-//        publisher.publishEvent(EmailRegistrationComplete(savedUser, appUrl))
-        saveUserToken(savedUser, jwtToken)
-
-        return AuthenticationResponse(
-            accessToken = jwtToken
-        )
     }
+
+
 
     fun registerNewUser(registration: RegistrationRequest, request: HttpServletRequest): AuthenticationResponse {
         val appUrl = UrlUtility.getApplicationUrl(request)
@@ -77,14 +97,29 @@ class AuthenticationService @Lazy constructor(
 
         val appUser = authenticationRequest.email?.let { userRepository.findByEmail(it) }
             ?: throw UsernameNotFoundException("Username not found")
-        val jwtToken = jwtService.generateToken(appUser)
-        revokeAllUserTokens(appUser)
-        saveUserToken(appUser, jwtToken)
 
-        return AuthenticationResponse(
-            accessToken = jwtToken,
 
-        )
+        try {
+            val jwtToken = jwtService.generateToken(appUser)
+            revokeAllUserTokens(appUser)
+            saveUserToken(appUser, jwtToken)
+
+            // Send registration email
+            val subject = "Login Infor!"
+            val body = "Dear ${appUser.name},\n Your Account was accessed, confirmed that it was you. \n else you can quickly change your password"
+            emailService.sendEmail(appUser.email!!, subject, body)
+
+
+            //send notification
+            notificationService.createNotification("Login successfull", appUser)
+
+            return AuthenticationResponse(
+                accessToken = jwtToken,
+
+            )
+        } catch (e: Exception) {
+            throw AuthenticationException("An error occurred while authenticating the users")
+        }
     }
 
     fun saveUserToken(appUser: AppUser, jwtToken: String) {

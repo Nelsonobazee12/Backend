@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   postgres:
-    image: postgres:latest
+    image: postgres:16
     container_name: server_postgres
     environment:
       POSTGRES_DB: server_db
@@ -19,16 +19,12 @@ services:
     container_name: Backend_app
     ports:
       - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/server_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=nelson1234
     depends_on:
       - postgres
-
-
-  backend:
-    image: backend-app-db
-    environment:
-      DATABASE_URL: jdbc:postgresql://dpg-cr87qda3esus73frqiv0-a:5432/bankdash_db
-      DATABASE_USERNAME: bankdash_db_user
-      DATABASE_PASSWORD: yj7ERU34mFzmspqAiJBvnkn6eWFiwamK
 
 volumes:
   postgres_data:

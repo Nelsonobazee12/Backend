@@ -2,24 +2,16 @@ spring:
   application:
     name: Backend
 
-# production database
   datasource:
-     url: jdbc:postgresql://dpg-cr87qda3esus73frqiv0-a:5432/bankdash_db
-     username: bankdash_db_user
-     password: yj7ERU34mFzmspqAiJBvnkn6eWFiwamK
-
-#  # development database
-#  datasource:
-#      url: jdbc:postgresql://localhost:5434/server_db
-#      username: postgres
-#      password: nelson1234
-
+    url: ${SUPABASE_DB_URL}
+    username: ${SUPABASE_DB_USER}
+    password: ${SUPABASE_DB_PASSWORD}
 
   flyway:
     enabled: false
-    url: jdbc:postgresql://postgres:5432/server_db
-    user: postgres
-    password: nelson1234
+    url: ${SUPABASE_DB_URL}
+    user: ${SUPABASE_DB_USER}
+    password: ${SUPABASE_DB_PASSWORD}
     locations: classpath:db/migration
     baseline-on-migrate: true
 
@@ -43,27 +35,16 @@ spring:
       client:
         registration:
           google:
-            client-id: 748382954645-nb7vbtd3a6p6ojpset062m9rivjcdmiv.apps.googleusercontent.com
-            client-secret: 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
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
             scope: openid, profile, email
-            redirect-uri: https://backend-9pss.onrender.com/login/oauth2/code/google
-
-
-#  security:
-#    oauth2:
-#      client:
-#        registration:
-#          google:
-#            client-id: 310871215879-033lu5ool18j6qeq708sq7mt1q5d2hf6.apps.googleusercontent.com
-#            client-secret: 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
-#            scope: openid, profile, email
-
+            redirect-uri: ${GOOGLE_REDIRECT_URI}
 
   mail:
     host: smtp.gmail.com
     port: 465
-    username: nelsoncode573@gmail.com
-    password: aiai kzto vrhn ntuf
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
     properties:
       mail:
         smtp:
@@ -92,18 +73,17 @@ logging:
         security.oauth2: DEBUG
         web: DEBUG
         filter: DEBUG
+    flywaydb:
+      DEBUG
 
 application:
   backend:
     jwt:
-      secret-key: CE5B45053D01A06FCBB9BE55974A1453CDBAF611E571CDC58ECB4A0BDB794682
+      secret-key: ${JWT_SECRET_KEY}
       expiration: 86400000
 
 frontend:
-  url: https://bankdash.onrender.com
-
-#frontend:
-#  url: http://localhost:3000
+  url: ${FRONTEND_URL}
 
 server:
   error:
@@ -111,7 +91,6 @@ server:
   port: 8080
 
 cloudinary:
-  cloud-name: dbjwj3ugv
-  api-key: 322279617279884
-  api-secret: 65zPc3FpjxzGN5xQpT_AtsrwvZQ
-
+  cloud-name: ${CLOUDINARY_CLOUD_NAME}
+  api-key: ${CLOUDINARY_API_KEY}
+  api-secret: ${CLOUDINARY_API_SECRET}

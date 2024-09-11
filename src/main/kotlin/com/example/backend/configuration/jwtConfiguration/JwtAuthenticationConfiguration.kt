@@ -11,16 +11,15 @@ import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.MalformedJwtException
-import io.jsonwebtoken.SignatureException
 import io.jsonwebtoken.UnsupportedJwtException
 import jakarta.servlet.FilterChain
 import jakarta.servlet.ServletException
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import org.hibernate.query.sqm.tree.SqmNode.log
 import org.springframework.context.annotation.Lazy
 import java.io.IOException
-
+import io.jsonwebtoken.security.SecurityException
+import jakarta.transaction.Transactional
 
 
 @Component
@@ -70,27 +69,32 @@ class JwtAuthenticationConfiguration @Lazy constructor(
                 }
             }
         } catch (e: ExpiredJwtException) {
-            log.error("Expired JWT token", e)
+            logger.error("Expired JWT token", e)
             response.status = HttpServletResponse.SC_UNAUTHORIZED
             response.writer.write("JWT token has expired. Please log in again.")
+            return
         } catch (e: UnsupportedJwtException) {
-            log.error("Invalid JWT token", e)
+            logger.error("Invalid JWT token", e)
             response.status = HttpServletResponse.SC_UNAUTHORIZED
             response.writer.write("Invalid JWT token. Please provide a valid token.")
-        } catch (e: SignatureException) {
-            log.error("Invalid JWT token", e)
+            return
+        } catch (e: SecurityException) {
+            logger.error("Invalid JWT token", e)
             response.status = HttpServletResponse.SC_UNAUTHORIZED
             response.writer.write("Invalid JWT token. Please provide a valid token.")
+            return
         } catch (e: MalformedJwtException) {
-            log.error("Invalid JWT token", e)
+            logger.error("Invalid JWT token", e)
             response.status = HttpServletResponse.SC_UNAUTHORIZED
             response.writer.write("Invalid JWT token. Please provide a valid token.")
+            return
         } catch (e: Exception) {
-            log.error("Unexpected error occurred", e)
+            logger.error("Unexpected error occurred", e)
             response.status = HttpServletResponse.SC_INTERNAL_SERVER_ERROR
             response.writer.write("An unexpected error occurred. Please try again later.")
+            return
         }
-
         filterChain.doFilter(request, response)
     }
 }
+

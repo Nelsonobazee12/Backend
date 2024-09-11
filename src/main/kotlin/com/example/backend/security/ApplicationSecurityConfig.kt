@@ -71,8 +71,7 @@ class ApplicationSecurityConfig (
                         "/actuator/**",
                         "/confirmEmail",
                         "/confirm-email",
-                        "/reset-password",
-                        "/request-password-reset"
+                        "/api/v1/auth/**",
                     ).permitAll()
                     .anyRequest().authenticated()
             }

@@ -1,5 +1,3 @@
 package com.example.backend.exceptions
 
-class UserAlreadyExistException(s: String) : Throwable() {
-
-}
+class UserAlreadyExistException(message: String?) : RuntimeException(message)

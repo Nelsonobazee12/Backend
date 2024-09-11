@@ -1,10 +1,12 @@
 package com.example.backend.service
 
+import com.example.backend.Entities.users.AppUser
 import com.example.backend.bankAccount.BankCard
 import com.example.backend.bankAccount.transaction.TransferRequest
 import com.example.backend.repository.AppUserRepository
 import com.example.backend.repository.BankCardRepository
 import jakarta.transaction.Transactional
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -96,6 +98,7 @@ class BankCardService(
 
     @Transactional
     fun transferFunds(transferRequest: TransferRequest): BankCard {
+
         val sourceCard = bankCardRepository.findByCardNumber(transferRequest.sourceCardNumber)
             ?: throw IllegalArgumentException("Source card not found")
 
@@ -135,6 +138,9 @@ class BankCardService(
             description = transferRequest.description,
             balanceAfterTransaction = destinationCard.balance // Pass the updated balance
         )
+
+        //send notification
+        notificationService.createNotification("Transfer was successful", sourceCard.appUser)
 
         return sourceCard
     }
@@ -181,5 +187,14 @@ class BankCardService(
 
     fun getAllBankCard() : MutableList<BankCard> {
         return bankCardRepository.findAll()
+    }
+
+//    fun getCurrentUserById(userDetails: UserDetails): AppUser? {
+//        val userId = userDetails.id
+//        return appUserRepository.findByEmail(userId)
+//    }
+
+    fun getCardsByUserId(userId: Long): List<BankCard> {
+        return bankCardRepository.findByAppUserId(userId)
     }
 }

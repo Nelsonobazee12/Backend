@@ -26,7 +26,6 @@ data class AppUser(
     @Column(nullable = false)
     private var password : String?,
 
-
     @JoinColumn(name = "image_id")
     var profileImage: String? = "https://res.cloudinary.com/dbjwj3ugv/image/upload/v1725105327/fjmlxipfxhaltwfnlxsc.png",
 
@@ -80,4 +79,7 @@ data class AppUser(
         return enabled
     }
 
+    fun updatePassword(newPassword: String) : AppUser {
+        return this.copy(password = newPassword)
+    }
 }

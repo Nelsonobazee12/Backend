@@ -1,5 +1,7 @@
+
 plugins {
     id("org.springframework.boot") version "3.3.2"
+    id("org.flywaydb.flyway") version "10.0.0"
     id("io.spring.dependency-management") version "1.1.6"
     kotlin("plugin.jpa") version "1.9.24"
     kotlin("jvm") version "1.9.24"
@@ -29,7 +31,7 @@ dependencies {
     implementation ("io.jsonwebtoken:jjwt-impl:0.12.5")
     implementation ("io.jsonwebtoken:jjwt-jackson:0.12.5")
     implementation ("org.springframework.boot:spring-boot-starter-mail")
-    implementation ("org.flywaydb:flyway-core:10.10.0")
+    implementation ("org.flywaydb:flyway-database-postgresql:10.0.0")
     implementation ("org.springframework.boot:spring-boot-starter-oauth2-client")
     implementation ("com.cloudinary:cloudinary-http44:1.29.0")
     implementation("org.springframework.boot:spring-boot-starter-security")
@@ -57,3 +59,6 @@ kotlin {
 tasks.withType<Test> {
     useJUnitPlatform()
 }
+
+
+

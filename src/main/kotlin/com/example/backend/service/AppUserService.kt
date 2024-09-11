@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile
 
 
 @Service
+@Transactional
 class AppUserService(
     private val appUserRepository: AppUserRepository,
     private val tokenRepository: TokenRepository,
@@ -47,7 +48,7 @@ class AppUserService(
      * @param id of the user to delete.
      * delete AppUser instance.
      */
-    @Transactional
+
     fun deleteUserById(id: Long) {
         appUserRepository.deleteById(id)
     }
@@ -56,7 +57,6 @@ class AppUserService(
         return appUserRepository.findById(id).orElse(null)
     }
 
-    @Transactional
     fun updateProfileImage(userId: Long, imageFile: MultipartFile): AppUser {
         val user = appUserRepository.findById(userId).orElseThrow {
             throw IllegalArgumentException("User not found")
