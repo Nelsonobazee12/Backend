@@ -27,13 +27,13 @@ BankDash is a backend application that enables users to create credit card, add 
 
 #### Class diagram
 
-![Class diagram](image/screenshot-localhost_3000-2024_11_15-16_49_49.png)
+![Class diagram](src/main/resources/image/screenshot-localhost_3000-2024_11_15-16_49_49.png)
 
 #### Spring security diagram
-![Security diagram](image/screenshot-localhost_3000-2024_11_15-16_50_33.png)
+![Security diagram](src/main/resources/image/screenshot-localhost_3000-2024_11_15-16_50_33.png)
 
 #### Backend pipeline
-![Security diagram](image/server_db@localhost.png)
+![Security diagram](src/main/resources/image/server_db@localhost.png)
 
 
 ## Technologies Used
@@ -50,10 +50,6 @@ BankDash is a backend application that enables users to create credit card, add 
 - Docker
 - GitHub Actions
 
-
-## License
-
-This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for details.
 
 ## Getting Started
 
