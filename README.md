@@ -27,10 +27,10 @@ BankDash is a backend application that enables users to create credit card, add 
 
 #### Class diagram
 
-![Class diagram](src/main/resources/image/screenshot-localhost_3000-2024_11_15-16_49_49.png)
+![Class diagram](src/main/resources/image/image1.png)
 
 #### Spring security diagram
-![Security diagram](src/main/resources/image/screenshot-localhost_3000-2024_11_15-16_50_33.png)
+![Security diagram](src/main/resources/image/image2.png)
 
 #### Backend pipeline
 ![Security diagram](src/main/resources/image/server_db@localhost.png)
