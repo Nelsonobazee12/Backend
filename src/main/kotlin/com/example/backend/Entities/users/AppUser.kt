@@ -2,61 +2,61 @@ package com.example.backend.Entities.users
 
 import com.example.backend.bankAccount.BankCard
 import com.example.backend.bankAccount.Notification
-import com.example.backend.token.Token
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonTypeInfo
 import jakarta.persistence.*
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 
-
 @Entity
 @Table(name = "app_user")
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 data class AppUser(
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id : Long? = 0,
+    val id: Long? = null,
+
+    val auth0Id: String?,
 
     @Column(nullable = false)
-    var name : String?,
+    var name: String?,
+
+    @Column(nullable = false, unique = true)
+    var email: String?,
 
     @Column(nullable = false)
-    var email : String?,
+    private var password: String?,
 
     @Column(nullable = false)
-    private var password : String?,
-
-    @JoinColumn(name = "image_id")
-    var profileImage: String? = "https://res.cloudinary.com/dbjwj3ugv/image/upload/v1725105327/fjmlxipfxhaltwfnlxsc.png",
+    var profileImage: String = "https://res.cloudinary.com/dbjwj3ugv/image/upload/v1725105327/fjmlxipfxhaltwfnlxsc.png",
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    var roles : Role?,
+    var roles: Role,
 
     @Column(nullable = false)
     var enabled: Boolean,
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "appUser", fetch = FetchType.EAGER, cascade = [CascadeType.ALL], orphanRemoval = true)
-    var tokens: List<Token>? = mutableListOf(),
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "appUser", cascade = [CascadeType.ALL], fetch = FetchType.LAZY, orphanRemoval = true)
-    val bankCards: List<BankCard> = mutableListOf(),
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "appUser", cascade = [CascadeType.REMOVE])
-    var notifications: List<Notification> = mutableListOf(),
-//
+//    @OneToMany(mappedBy = "appUser", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
 //    @JsonIgnore
-//    @OneToMany(mappedBy = "appUser", cascade = [CascadeType.REMOVE])
-//    var transaction : List<Transaction> = mutableListOf()
+//    var tokens: List<Token> = mutableListOf(),
 
-): UserDetails {
+    @OneToOne(mappedBy = "appUser", cascade = [CascadeType.ALL], fetch = FetchType.LAZY, orphanRemoval = true)
+    @JsonIgnore
+    var bankCard: BankCard? = null,
+
+    @OneToMany(mappedBy = "appUser", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    @JsonIgnore
+    var notifications: List<Notification> = mutableListOf(),
+
+    var isFirstLogin: Boolean = true,
+    var isTwoFactorAuthEnabled: Boolean,
+    var secret: String? = null
+) : UserDetails {
 
     override fun getAuthorities(): Collection<GrantedAuthority> {
-            return roles?.getAuthorities() ?: emptyList()
-        }
+        return roles?.getAuthorities() ?: emptyList()
+    }
 
     override fun getPassword(): String {
         return password ?: ""
@@ -65,12 +65,15 @@ data class AppUser(
     override fun getUsername(): String {
         return email ?: ""
     }
+
     override fun isAccountNonExpired(): Boolean {
         return true
     }
+
     override fun isAccountNonLocked(): Boolean {
         return true
     }
+
     override fun isCredentialsNonExpired(): Boolean {
         return true
     }
@@ -79,7 +82,12 @@ data class AppUser(
         return enabled
     }
 
-    fun updatePassword(newPassword: String) : AppUser {
+    fun updatePassword(newPassword: String): AppUser {
         return this.copy(password = newPassword)
+    }
+
+    // Optional: Avoid recursive toString if needed
+    override fun toString(): String {
+        return "AppUser(id=$id, name=$name, email=$email, enabled=$enabled, isFirstLogin=$isFirstLogin)"
     }
 }

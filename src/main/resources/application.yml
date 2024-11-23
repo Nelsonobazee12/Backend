@@ -1,19 +1,146 @@
+# for docker usage
+
+#spring:
+#  application:
+#    name: Backend
+#
+#  # production database
+#  datasource:
+#    url: {SPRING_DATASOURCE_URL}
+#    username: {SPRING_DATASOURCE_USERNAME}
+#    password: {SPRING_DATASOURCE_PASSWORD}
+#    hikari:
+#      maximum-pool-size: 10
+#      minimum-idle: 5
+#      idle-timeout: 30000
+#
+#  jpa:
+#    show-sql: true
+#    hibernate:
+#      ddl-auto: create-drop
+#    properties:
+#      hibernate:
+#        connection:
+#          autocommit: false
+#        dialect: org.hibernate.dialect.PostgreSQLDialect
+#        format_sql: true
+#
+#  security:
+#    oauth2:
+#      client:
+#        registration:
+#          google:
+#            client-id: {GOOGLE_CLIENT_ID}
+#            client-secret: {GOOGLE_CLIENT_SECRET}
+#            scope: {GOOGLE_CLIENT_SCOPE}
+#            redirect-uri: {GOOGLE_CLIENT_REDIRECT_URL}
+#
+#  mail:
+#    host: smtp.gmail.com
+#    port: 465
+#    username: {MAIL_USERNAME}
+#    password: {MAIL_PASSWORD}
+#    properties:
+#      mail:
+#        smtp:
+#          auth: true
+#          starttls:
+#            enable: true
+#          ssl:
+#            enable: true
+#          connection timeout: 60000
+#          timeout: 60000
+#          write timeout: 60000
+#        debug: true
+#
+#  task:
+#    execution:
+#      thread-name-prefix: async-email-
+#      pool:
+#        core-size: 2
+#        max-size: 4
+#
+#  cache:
+#    type: {SPRING_CACHE_TYPE}
+#    redis:
+#      time-to-live: 300000
+#
+#  data:
+#    redis:
+#      host: {SPRING_CACHE_HOST}
+#      port: {SPRING_CACHE_HOST}
+#
+#  zipkin:
+#    base-url: {ZIPKIN_URL}
+#  sleuth:
+#    sampler:
+#      probability: 1.0
+#
+#logging:
+#  level:
+#    org:
+#      hibernate:
+#        type: debug
+#
+#application:
+#  backend:
+#    jwt:
+#      secret-key: {JWT_SECRET_KEY}
+#      expiration: 86400000
+#
+#frontend:
+#  url: {FRONTEND_URL}
+#
+#server:
+#  error:
+#    include-message: always
+#  port: 8080
+#
+#cloudinary:
+#  cloud-name: {CLOUDINARY_CLOUD_NAME}
+#  api-key: {CLOUDINARY_API_KEY}
+#  api-secret: {CLOUDINARY_API_SECRET}
+#
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        include: "*"
+#  endpoint:
+#    health:
+#      show-details: "always"
+#
+#info:
+#  app:
+#    version: 1.00
+#    name: Customer Admin Dashboard
+
+
+
+#
 spring:
   application:
     name: Backend
 
+  # production database
   datasource:
-    url: ${SUPABASE_DB_URL}
-    username: ${SUPABASE_DB_USER}
-    password: ${SUPABASE_DB_PASSWORD}
+    url: jdbc:postgresql://localhost:5434/server_db
+    username: postgres
+    password: nelson1234
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 30000
+
 
   flyway:
     enabled: false
-    url: ${SUPABASE_DB_URL}
-    user: ${SUPABASE_DB_USER}
-    password: ${SUPABASE_DB_PASSWORD}
+    url: jdbc:postgresql://aws-0-us-east-1.pooler.supabase.com:6543/postgres
+    user: postgres.mbeuayjarthnctszscco
+    password: 2M#fDk!D*Z2H@ap
     locations: classpath:db/migration
     baseline-on-migrate: true
+
 
   jpa:
     show-sql: true
@@ -26,25 +153,18 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
-  devtools:
-    restart:
-      enabled: true
 
   security:
     oauth2:
-      client:
-        registration:
-          google:
-            client-id: ${GOOGLE_CLIENT_ID}
-            client-secret: ${GOOGLE_CLIENT_SECRET}
-            scope: openid, profile, email
-            redirect-uri: ${GOOGLE_REDIRECT_URI}
+      resourceserver:
+        jwt:
+          issuer-uri: https://dev-caow7ecl0mdexs3u.us.auth0.com/.well-known/jwks.json
 
   mail:
     host: smtp.gmail.com
     port: 465
-    username: ${MAIL_USERNAME}
-    password: ${MAIL_PASSWORD}
+    username: nelsoncode573@gmail.com
+    password: aiai kzto vrhn ntuf
     properties:
       mail:
         smtp:
@@ -58,6 +178,7 @@ spring:
           write timeout: 60000
         debug: true
 
+
   task:
     execution:
       thread-name-prefix: async-email-
@@ -65,34 +186,71 @@ spring:
         core-size: 2
         max-size: 4
 
+  cache:
+    type: redis
+    redis:
+      time-to-live: 300000
+  data:
+    redis:
+      host: redis
+      port: 6379
+
+  zipkin:
+     base-url: http://localhost:9411
+
+  sleuth:
+    sampler:
+      probability: 1.0
+
 logging:
   level:
     org:
-      springframework:
-        security: DEBUG
-        security.oauth2: DEBUG
-        web: DEBUG
-        filter: DEBUG
-    flywaydb:
-      DEBUG
-
-application:
-  backend:
-    jwt:
-      secret-key: ${JWT_SECRET_KEY}
-      expiration: 86400000
+      hibernate:
+        type: debug
 
 frontend:
-  url: ${FRONTEND_URL}
+  url: http://localhost:3000
 
 server:
   error:
     include-message: always
-  address: 0.0.0.0
   port: 8080
 
 cloudinary:
-  cloud-name: ${CLOUDINARY_CLOUD_NAME}
-  api-key: ${CLOUDINARY_API_KEY}
-  api-secret: ${CLOUDINARY_API_SECRET}
+  cloud-name: dbjwj3ugv
+  api-key: 322279617279884
+  api-secret: 65zPc3FpjxzGN5xQpT_AtsrwvZQ
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: "always"
+
+info:
+  app:
+    version: 1.00
+    name: Customer Admin Dashboard
+
+
+auth0:
+  domain: dev-caow7ecl0mdexs3u.us.auth0.com
+  clientId: 18b2D0wt9JQLzG5S7XdVQKaU8ObU6ocD
+  clientSecret: yY0xo26SCqOIEnpa8LhBer4AKIvWPSIwCeCqOiBo8O_vrFvL4BVrAsKoA0Ee0oaI
+  audience: https://dev-caow7ecl0mdexs3u.us.auth0.com/api/v2/
+
+
+
+
+
+
+
+
+
+
+
 

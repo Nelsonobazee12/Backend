@@ -1,7 +1,6 @@
 package com.example.backend.configuration.jwtConfiguration
 
 import com.example.backend.repository.AppUserRepository
-import com.example.backend.service.CustomUserDetailsService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager
@@ -16,7 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder
 
 @Configuration
 class ApplicationConfiguration(private val userRepository: AppUserRepository,
-                               private val customUserDetailsService: CustomUserDetailsService,) {
+) {
 
     @Bean
     fun passwordEncoder(): PasswordEncoder {
@@ -27,14 +26,6 @@ class ApplicationConfiguration(private val userRepository: AppUserRepository,
     @Throws(Exception::class)
     fun authenticationManager(configuration: AuthenticationConfiguration): AuthenticationManager {
         return configuration.authenticationManager
-    }
-
-    @Bean
-    fun AuthenticationProvider(): AuthenticationProvider {
-        val daoAuthenticationProvider = DaoAuthenticationProvider()
-        daoAuthenticationProvider.setUserDetailsService(customUserDetailsService)
-        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder())
-        return daoAuthenticationProvider
     }
 
 

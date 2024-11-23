@@ -1,13 +1,13 @@
 package com.example.backend.bankAccount.transaction
 
-import java.time.LocalDateTime
-
+import jakarta.validation.constraints.NotNull
+import jakarta.validation.constraints.Positive
 
 data class TransferRequest(
-    val sourceCardNumber: String,
     val destinationCardNumber: String,
-    val amount: Double,
+    @field:NotNull @field:Positive val amount: Double,
     val description: String?
 )
+
 
 

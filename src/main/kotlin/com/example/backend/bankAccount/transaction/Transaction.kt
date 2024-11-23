@@ -1,7 +1,9 @@
 package com.example.backend.bankAccount.transaction
 
 import com.example.backend.bankAccount.BankCard
+import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
+import java.io.Serializable
 import java.util.UUID
 
 @Entity
@@ -23,7 +25,13 @@ data class Transaction(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bank_card_id")
+    @JsonIgnore
     val bankCard: BankCard
 
-)
+) {
+
+    override fun toString(): String {
+        return "Transaction(id=$id, transactionId=$transactionId, amount=$amount, type=$type, timestamp=$timestamp, description=$description, cardNumber=$cardNumber, cardHolderName=$cardHolderName, balanceAfterTransaction=$balanceAfterTransaction)"
+    }
+}
 

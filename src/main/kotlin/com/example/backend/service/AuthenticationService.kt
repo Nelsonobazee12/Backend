@@ -1,178 +1,165 @@
 package com.example.backend.service
-
-import com.example.backend.configuration.jwtConfiguration.JwtService
-import com.example.backend.exceptions.UserAlreadyExistException
-import com.example.backend.registration.AuthenticationRequest
-import com.example.backend.registration.AuthenticationResponse
-import com.example.backend.registration.RegistrationRequest
-import com.example.backend.repository.AppUserRepository
-import com.example.backend.repository.TokenRepository
-import com.example.backend.token.Token
-import com.example.backend.token.TokenType
 import com.example.backend.Entities.users.AppUser
-import com.example.backend.Entities.users.Role
-import com.example.backend.exceptions.AuthenticationException
-import com.example.backend.exceptions.RegistrationException
-import com.example.backend.utilities.UrlUtility
-import jakarta.servlet.http.HttpServletRequest
+import com.example.backend.bankAccount.BankCard
+import com.example.backend.configuration.auth0.Auth0Config
+import com.example.backend.exceptions.*
+import com.example.backend.registration.*
+import com.example.backend.registration.Auth0TokenResponse
+import com.example.backend.repository.AppUserRepository
+import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.ApplicationEventPublisher
-import org.springframework.context.annotation.Lazy
-import org.springframework.dao.DataIntegrityViolationException
-import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.http.HttpEntity
+import org.springframework.http.MediaType
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Isolation
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.client.HttpClientErrorException
+import org.springframework.web.client.RestTemplate
+import org.springframework.web.client.postForEntity
 
 
 @Service
-@Transactional
-class AuthenticationService @Lazy constructor(
+class AuthenticationService(
     private val passwordEncoder: PasswordEncoder,
     private val userRepository: AppUserRepository,
-    private val jwtService: JwtService,
-    private val authenticationManager: AuthenticationManager,
-    private val tokenRepository: TokenRepository,
-    private val emailService: EmailService,
+    private val auth0Client: Auth0Client,
+    private val auth0Config: Auth0Config,
+    private val bankCardService: BankCardService,
+    private val applicationEventPublisher: ApplicationEventPublisher,
     private val notificationService: NotificationService,
-    @Qualifier("webApplicationContext") private val publisher: ApplicationEventPublisher,
-    private val request: HttpServletRequest
+    @Qualifier("restTemplate") private val restTemplate: RestTemplate
 ) {
 
+    companion object {
+        private val logger = KotlinLogging.logger {}
+    }
 
-    fun registerNewUser(registration: RegistrationRequest, appUrl: String): AuthenticationResponse {
-        // Check if a user with the same email already exists
-        val existingUser = registration.email?.let { userRepository.findByEmail(it) }
-        if (existingUser != null) {
-            throw UserAlreadyExistException("User already exists with this email")
+    @Transactional
+    fun registerNewUser(registration: RegistrationRequest): AuthenticationResponse {
+        validateNewUser(registration)
+        val auth0UserId = registerAuth0User(registration)
+        val savedUser = saveLocalUser(registration, auth0UserId)
+
+        // create bank card and sending email
+        applicationEventPublisher.publishEvent(UserRegisteredEvent(savedUser))
+
+        // Notify the user about the successful registration
+        notificationService.createNotification("User Created successfully", savedUser)
+
+        return createAuthenticationResponse(savedUser)
+    }
+
+
+    fun authenticateUser(request: AuthenticationRequest): AuthenticationResponse {
+        // Validate input
+        val email = request.email ?: throw BadCredentialsException("Email is required")
+        val password = request.password ?: throw BadCredentialsException("Password is required")
+
+        // Authenticate with Auth0 to get tokens
+        val tokenResponse = try {
+            authenticateWithAuth0(email, password)
+        } catch (e: Exception) {
+            logger.error(e) { "Authentication failed" }
+            throw BadCredentialsException("Invalid credentials")
         }
 
+        // Fetch local user
+        val user = userRepository.findByEmail(email)
+            ?: throw UsernameNotFoundException("User not found")
+
+        // Notify and send email
+        applicationEventPublisher.publishEvent(UserLoginEvent(user))
+
+        // Notify the user about the successful creation
+        notificationService.createNotification("Login successfully", user)
+
+        return AuthenticationResponse(
+            accessToken = tokenResponse.accessToken,
+            idToken = tokenResponse.idToken,
+            isTwoFactorAuthEnabled = user.isTwoFactorAuthEnabled,
+            secretImageUrl = null
+        )
+    }
+
+    private fun authenticateWithAuth0(email: String, password: String): Auth0TokenResponse {
+        val headers = org.springframework.http.HttpHeaders().apply {
+            contentType = MediaType.APPLICATION_JSON
+        }
+
+        val payload = mapOf(
+            "grant_type" to "password",
+            "client_id" to auth0Config.clientId,
+            "client_secret" to auth0Config.clientSecret,
+            "audience" to auth0Config.audience,
+            "username" to email,
+            "password" to password,
+            "scope" to "openid profile email",
+//            "connection" to "Username-Password-Authentication"
+        )
+
+        val request = HttpEntity(payload, headers)
+
+        val response = try {
+            restTemplate.postForEntity<Map<String, Any>>(
+                "https://${auth0Config.domain}/oauth/token",
+                request
+            )
+        } catch (ex: HttpClientErrorException) {
+            logger.error(ex) { "Auth0 authentication failed: ${ex.responseBodyAsString}" }
+            throw AuthenticationException("Authentication failed")
+        }
+
+        return when {
+            response.statusCode.is2xxSuccessful -> {
+                val body = response.body ?: throw AuthenticationException("Empty response")
+                Auth0TokenResponse(
+                    accessToken = body["access_token"] as? String,
+                    idToken = body["id_token"] as? String
+                )
+            }
+            else -> throw AuthenticationException("Authentication failed")
+        }
+    }
+
+
+    private fun validateNewUser(registration: RegistrationRequest) {
+        registration.email?.let { email ->
+            userRepository.findByEmail(email)?.let {
+                throw UserAlreadyExistException("User already exists with email: $email")
+            }
+        }
+    }
+
+    private fun registerAuth0User(registration: RegistrationRequest): String {
+        val existingAuth0User = auth0Client.findUserByEmail(registration.email)
+        if (existingAuth0User != null) {
+            return existingAuth0User
+        }
+        return auth0Client.createUser(registration)
+    }
+
+    private fun saveLocalUser(registration: RegistrationRequest, auth0UserId: String): AppUser {
         val user = AppUser(
             name = registration.name,
             email = registration.email,
             password = passwordEncoder.encode(registration.password),
             roles = registration.role,
+            auth0Id = auth0UserId,
+            isTwoFactorAuthEnabled = registration.isTwoFactorAuthEnabled,
             enabled = true
         )
-
-        try {
-            // Save the new user
-            val savedUser = userRepository.save(user)
-            val jwtToken = jwtService.generateToken(savedUser)
-
-            saveUserToken(savedUser, jwtToken)
-
-            // Send registration email
-            val subject = "Welcome to Our Service!"
-            val body = "Dear ${user.name},\n\nThank you for registering at our service. Please visit $appUrl to start using your account."
-            emailService.sendEmail(user.email!!, subject, body)
-
-            return AuthenticationResponse(
-                accessToken = jwtToken
-            )
-
-        } catch (e: Exception) {
-            // Handle other exceptions if necessary
-            throw RegistrationException("An error occurred while registering the user")
-        }
+        return userRepository.save(user)
     }
 
-
-
-    fun registerNewUser(registration: RegistrationRequest, request: HttpServletRequest): AuthenticationResponse {
-        val appUrl = UrlUtility.getApplicationUrl(request)
-        return registerNewUser(registration, appUrl)
-    }
-
-    fun authenticateUsers(authenticationRequest: AuthenticationRequest): AuthenticationResponse {
-        authenticationManager.authenticate(
-            UsernamePasswordAuthenticationToken(
-                authenticationRequest.email,
-                authenticationRequest.password
-            )
+    private fun createAuthenticationResponse(user: AppUser): AuthenticationResponse {
+        return AuthenticationResponse(
+            accessToken = null,
+            idToken = null,
+            isTwoFactorAuthEnabled = user.isTwoFactorAuthEnabled
         )
-
-        val appUser = authenticationRequest.email?.let { userRepository.findByEmail(it) }
-            ?: throw UsernameNotFoundException("Username not found")
-
-
-        try {
-            val jwtToken = jwtService.generateToken(appUser)
-            revokeAllUserTokens(appUser)
-            saveUserToken(appUser, jwtToken)
-
-            // Send registration email
-            val subject = "Login Infor!"
-            val body = "Dear ${appUser.name},\n Your Account was accessed, confirmed that it was you. \n else you can quickly change your password"
-            emailService.sendEmail(appUser.email!!, subject, body)
-
-
-            //send notification
-            notificationService.createNotification("Login successfull", appUser)
-
-            return AuthenticationResponse(
-                accessToken = jwtToken,
-
-            )
-        } catch (e: Exception) {
-            throw AuthenticationException("An error occurred while authenticating the users")
-        }
     }
-
-    fun saveUserToken(appUser: AppUser, jwtToken: String) {
-        val token = Token(
-            appUser = appUser,
-            token = jwtToken,
-            tokenType = TokenType.BEARER,
-            isExpired = false,
-            isRevoked = false
-        )
-        tokenRepository.save(token)
-    }
-
-    private fun revokeAllUserTokens(appUser: AppUser) {
-        val validUserTokens = tokenRepository.findAllValidTokenByUser(appUser.id ?: return)
-
-        if (validUserTokens.isNullOrEmpty()) return
-
-        validUserTokens.forEach {
-            it.isExpired = true
-            it.isRevoked = true
-        }
-        tokenRepository.saveAll(validUserTokens)
-    }
-
-
-//    fun refreshToken(request: HttpServletRequest, response: HttpServletResponse) {
-//        val authHeader = request.getHeader(HttpHeaders.AUTHORIZATION)
-//        val refreshToken: String
-//        val userEmail: String?
-//
-//        if (authHeader == null || !authHeader.startsWith("Bearer ")) return
-//
-//        refreshToken = authHeader.substring(7)
-//        userEmail = jwtService.extractUsername(refreshToken)
-//
-//        if (userEmail != null) {
-//            val user = userRepository.findByEmail(userEmail) ?: return
-//            if (jwtService.isTokenValid(refreshToken, user)) {
-//                val accessToken = jwtService.generateToken(user)
-//                revokeAllUserTokens(user)
-//                saveUserToken(user, accessToken)
-//
-//                val authResponse = AuthenticationResponse(
-//                    accessToken = accessToken,
-//                    refreshToken = refreshToken
-//                )
-//                response.outputStream.use { os ->
-//                    ObjectMapper().writeValue(os, authResponse)
-//                }
-//            }
-//        }
-//    }
 }
-
 

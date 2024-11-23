@@ -20,6 +20,11 @@ WORKDIR /app
 # Copy the built JAR file from the previous stage
 COPY --from=build /app/build/libs/Backend-0.0.1-SNAPSHOT.jar .
 
+# Copy the .env file into the container
+COPY .env .env
+
+RUN env | sort
+
 # Expose the port the app will run on
 EXPOSE 8080
 

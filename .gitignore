@@ -18,6 +18,8 @@ bin/
 !**/src/test/**/bin/
 
 ### IntelliJ IDEA ###
+fly.toml
+.env
 .idea
 *.iws
 *.iml

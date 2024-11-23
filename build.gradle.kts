@@ -19,16 +19,40 @@ java {
 
 repositories {
     mavenCentral()
+    maven { url = uri("https://jitpack.io") }
+    maven {
+        url = uri("https://repository.jboss.org/nexus/content/groups/public/")
+    }
 }
 
 dependencies {
+    implementation("com.auth0:java-jwt:4.4.0")
+    implementation("com.auth0:jwks-rsa:0.22.1")
+    implementation("org.springframework.security:spring-security-oauth2-jose")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
+    implementation("org.springframework.boot:spring-boot-starter-cache")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa:3.3.2")
     implementation ("org.springframework.boot:spring-boot-starter-validation")
     implementation ("org.springframework.boot:spring-boot-starter-logging")
     implementation ("org.slf4j:slf4j-api:2.0.12")
-    implementation ("ch.qos.logback:logback-classic")
+    implementation("dev.samstevens.totp:totp:1.7.1")
+    implementation("io.github.microutils:kotlin-logging:2.1.23")
+    implementation("io.github.microutils:kotlin-logging-jvm:2.0.11")
+    implementation("org.springframework.boot:spring-boot-starter")
+    implementation("com.github.cdimascio:dotenv-kotlin:6.4.1")
+    implementation("io.zipkin.reporter2:zipkin-reporter-brave")
+    implementation("io.micrometer:micrometer-tracing-bridge-brave")
+
+//    implementation("io.lettuce.core:lettuce-core:6.1.5")
     implementation ("io.jsonwebtoken:jjwt-api:0.12.5")
+    implementation ("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
+
     implementation ("io.jsonwebtoken:jjwt-impl:0.12.5")
+    implementation("com.zaxxer:HikariCP:5.0.1")
+    implementation ("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation ("io.jsonwebtoken:jjwt-jackson:0.12.5")
     implementation ("org.springframework.boot:spring-boot-starter-mail")
     implementation ("org.flywaydb:flyway-database-postgresql:10.0.0")
@@ -38,7 +62,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
+    implementation ("org.jetbrains.kotlin:kotlin-stdlib")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation ("org.mockito:mockito-inline:5.2.0")

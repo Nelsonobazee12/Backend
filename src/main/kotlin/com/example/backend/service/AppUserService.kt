@@ -1,9 +1,12 @@
 package com.example.backend.service
 
 import com.example.backend.repository.AppUserRepository
-import com.example.backend.repository.TokenRepository
 import com.example.backend.Entities.users.AppUser
+import com.example.backend.exceptions.NotFoundException
 import jakarta.transaction.Transactional
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.CachePut
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
@@ -13,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile
 @Transactional
 class AppUserService(
     private val appUserRepository: AppUserRepository,
-    private val tokenRepository: TokenRepository,
     private val cloudinaryService: CloudinaryService
 ) {
 
@@ -57,22 +59,29 @@ class AppUserService(
         return appUserRepository.findById(id).orElse(null)
     }
 
-    fun updateProfileImage(userId: Long, imageFile: MultipartFile): AppUser {
-        val user = appUserRepository.findById(userId).orElseThrow {
-            throw IllegalArgumentException("User not found")
-        }
+//    @CachePut(value = ["users"], key = "#appUser.email")
+    fun updateUser(appUser: AppUser): AppUser {
+        return appUserRepository.save(appUser)
+    }
 
-        // Upload image to Cloudinary and get the URL
+    @Transactional
+//    @CacheEvict(value = ["users"], key = "#userDetails.username")
+    fun updateProfileImage(userDetails: UserDetails, imageFile: MultipartFile): AppUser {
+        // Cast UserDetails to AppUser directly and ensure it's not null
+        val user = userDetails as? AppUser ?: throw NotFoundException("User not found")
+
+        // Upload image to Cloudinary
         val imageUrl = cloudinaryService.uploadImage(imageFile)
 
         // Update the user's profile image URL
         user.profileImage = imageUrl
+
+        // Save and return the updated user
         return appUserRepository.save(user)
     }
 
-    fun getCurrentUser(userDetails: UserDetails): AppUser? {
-        val username = userDetails.username
-        return appUserRepository.findByEmail(username)
+    fun findByAuth0Id(userId: String?): AppUser? {
+       return userId?.let { appUserRepository.findByAuth0Id(it) }
     }
 
 }

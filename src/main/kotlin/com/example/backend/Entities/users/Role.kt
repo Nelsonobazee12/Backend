@@ -3,7 +3,7 @@ package com.example.backend.Entities.users
 
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 
-enum class Role(private val permissions: Set<Permission>) {
+enum class Role(val permissions: Set<Permission>) {
     USER(emptySet()),
     ADMIN(
         setOf(
